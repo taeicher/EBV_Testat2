@@ -93,8 +93,9 @@ void ProcessFrame(uint8 *pInputImg) {
 				sigma = (float) M0 / (float) w0 - M1;
 			} else {
 				sigma = ((float) M0 / (float) w0) - (M1 / (float) w1);
-				sigma = sigma *sigma* (w0 * (float)w1);
+
 			}
+			sigma = sigma *sigma* (w0 * (float)w1);
 
 			if (sigma > sigmaMax) {
 				sigmaMax = sigma;

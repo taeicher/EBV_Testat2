@@ -51,94 +51,16 @@ void ProcessFrame(uint8 *pInputImg) {
 				sizeof(data.u8TempImage[FGRCOUNTER]));
 	} else {
 
-		/* this is the default case */
-		for (i1 = 0; i1 < siz; i1++)/* we strongly rely on the fact that them images have the same size */
-		{
-			/* first determine the foreground estimate */
-			//Hist[p[i1]] += 1;
-			Hist[data.u8TempImage[GRAYSCALE][i1]] += 1;
-		}
-		FrameNum++;
-		for (K = 0; K < 255; K++) {
-			w0 = 0;
-			w1 = 0;
-			M0 = 0;
-			M1 = 0;
-			//OscLog(INFO, "K= %i Hist[K]= %i \n", K, Hist[K]);
-			for (i1 = 0; i1 <= (K); i1++) {
-				//OscLog(INFO, "K= %d w0= %d M0= %d i1= %d \n", K, w0, M0,i1);
-				/*if(FrameNum == 50){
-				OscLog(INFO, "K= %d w0= %d M0= %d i1= %d \n", K, w0, M0,i1);
-				OscCall(Osc)
-				}*/
-				w0 += Hist[i1];
-				M0 += Hist[i1] * i1;
-			}
-			if (w0 > M0) {
-				dbg_err = 1;
-			}
-			for (i1 = K + 1; i1 <= 255; i1++) {
-				w1 += Hist[i1];
-				M1 += Hist[i1] * i1;
-			}
-			if (w0 > M0) {
-				dbg_err = 2;
-			}
-			//division by zero
-			if (w0 == 0 && w1 == 0) {
-				sigma = (float) M0 - M1;
-			} else if (w0 == 0) {
-				sigma = (float) M0 - M1 / (float) w1;
-			} else if (w1 == 0) {
-				sigma = (float) M0 / (float) w0 - M1;
-			} else {
-				sigma = ((float) M0 / (float) w0) - (M1 / (float) w1);
-				sigma = sigma *sigma* (w0 * (float)w1);
-			}
 
-			if (sigma > sigmaMax) {
-				sigmaMax = sigma;
-				Kmax = K;
-			}
-		}
 
 		for (r = 0; r < siz; r += nc)/* we strongly rely on the fact that them images have the same size */
 		{
 			for (c = 0; c < nc; c++) {
-				if(r/nc== Kmax/2 && c <nc/2){
-					data.u8TempImage[GRAYSCALE][r + (2*c)] = 255;
-					data.u8TempImage[GRAYSCALE][r + (2*c+1)] = 0;
-
-				}
-
-				switch (dbg_err) {
-				case 0:
-					/* first determine the foreground estimate */
-					//				data.u8TempImage[THRESHOLD][r+c] = data.u8TempImage[GRAYSCALE][r+c] > data.ipc.state.nThreshold ? 0 : 0xff;
-					data.u8TempImage[THRESHOLD][r + c]
-							= data.u8TempImage[GRAYSCALE][r + c] > Kmax ? 0
-									: 0xff;
-					data.u8TempImage[GRAYSCALE][Kmax] = 0;
-					data.u8TempImage[GRAYSCALE][Kmax+1] = 255;
-					data.u8TempImage[GRAYSCALE][256] = 0;
-					data.u8TempImage[GRAYSCALE][257] = 255;
-					break;
-				case 1:
-					data.u8TempImage[GRAYSCALE][r+c] = 230;
-					break;
-				case 2:
-					data.u8TempImage[GRAYSCALE][r+c] = 30;
-					break;
-				}
+				/* first determine the foreground estimate */
+				data.u8TempImage[THRESHOLD][r+c] = data.u8TempImage[GRAYSCALE][r+c] > data.ipc.state.nThreshold ? 0 : 0xff;
 
 			}
-#if IN_PICT_HISTOGRAM
-			if (r < 128 * nc) {
-				data.u8TempImage[GRAYSCALE][r + ((Hist[2 * r / nc] + Hist[2* r / nc + 1])>>5)] = 255;
-				data.u8TempImage[GRAYSCALE][r + ((Hist[2 * r / nc] + Hist[2* r / nc + 1])>>5)+1] = 0;
 
-			}
-#endif
 		}
 
 		/*

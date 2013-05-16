@@ -220,7 +220,7 @@ Msg const *MainState_ShowThreshold(MainState *me, Msg *msg)
 	case IPC_GET_NEW_IMG_EVT:
 	{
 		/* Write out the image to the address space of the CGI. */
-		memcpy(data.ipc.req.pAddr, data.u8TempImage[BACKGROUND], sizeof(data.u8TempImage[BACKGROUND]));
+		memcpy(data.ipc.req.pAddr, data.u8TempImage[DILATION], sizeof(data.u8TempImage[BACKGROUND]));
 
 		data.ipc.state.bNewImageReady = FALSE;
 
@@ -240,7 +240,7 @@ Msg const *MainState_ShowBackground(MainState *me, Msg *msg)
 	case IPC_GET_NEW_IMG_EVT:
 	{
 		/* Write out the current gray image to the address space of the CGI. */
-		memcpy(data.ipc.req.pAddr, data.u8TempImage[DILATION], sizeof(data.u8TempImage[DILATION]));
+		memcpy(data.ipc.req.pAddr, data.u8TempImage[EROSION], sizeof(data.u8TempImage[DILATION]));
 
 		data.ipc.state.bNewImageReady = FALSE;
 
